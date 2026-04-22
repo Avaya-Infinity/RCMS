@@ -1,0 +1,1735 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MPC Interactive Media Protocol (MIM) Message",
+  "type": "object",
+  "description": "Top-level envelope for all MIM websocket messages (Version 1.0.0 Alpha).",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Protocol version [major].[minor].[patch]. Required for session.start and session.started."
+    },
+    "type": {
+      "type": "string",
+      "description": "Message type identifier, e.g. 'session.start', 'bot.feature', 'media'."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Session identifier preserved across websocket disconnects."
+    },
+    "sequenceNum": {
+      "type": "integer",
+      "description": "Monotonic sequence number per sender per session, starting at 1."
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp with msec granularity."
+    },
+    "payload": {
+      "description": "Message-specific payload; shape depends on 'type'.",
+      "type": ["object", "null"]
+    }
+  },
+  "required": ["type", "sessionId", "sequenceNum", "timestamp"],
+  "additionalProperties": false,
+
+  "allOf": [
+    {
+      "oneOf": [
+        { "$ref": "#/definitions/TypedMessageSession" },
+        { "$ref": "#/definitions/TypedMessageMedia" },
+        { "$ref": "#/definitions/TypedMessageBot" },
+        { "$ref": "#/definitions/TypedMessageByobot" },
+        { "$ref": "#/definitions/TypedMessageAgentAssist" },
+        { "$ref": "#/definitions/TypedMessageRecording" },
+        { "$ref": "#/definitions/TypedMessageTts" },
+        { "$ref": "#/definitions/TypedMessageAsr" },
+        { "$ref": "#/definitions/TypedMessageTranscription" },
+        { "$ref": "#/definitions/TypedMessageTranslator" }
+      ]
+    }
+  ],
+
+  "definitions": {
+    "TypedMessageSession": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "session.start" },
+            "payload": { "$ref": "#/definitions/SessionStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.started" },
+            "payload": { "$ref": "#/definitions/SessionStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.update" },
+            "payload": { "$ref": "#/definitions/SessionUpdatePayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.updated" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.unupdatable" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.error" },
+            "payload": { "$ref": "#/definitions/SessionErrorPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.pause" },
+            "payload": { "$ref": "#/definitions/SessionPauseResumePayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.paused" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.resume" },
+            "payload": { "$ref": "#/definitions/SessionPauseResumePayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.resumed" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.ping" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.pong" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.negotiate" },
+            "payload": { "$ref": "#/definitions/SessionNegotiatePayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.negotiating" },
+            "payload": { "$ref": "#/definitions/SessionNegotiatingPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.negotiated" },
+            "payload": { "$ref": "#/definitions/SessionNegotiatedPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.event" },
+            "payload": { "$ref": "#/definitions/SessionEventPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.dtmf" },
+            "payload": { "$ref": "#/definitions/SessionDtmfPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.bind" },
+            "payload": { "$ref": "#/definitions/SessionBindPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.bound" },
+            "payload": { "$ref": "#/definitions/SessionBoundPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.recover" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.recovered" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.unrecoverable" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.end" },
+            "payload": { "$ref": "#/definitions/SessionEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.ending" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "session.ended" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageMedia": {
+      "properties": {
+        "type": { "const": "media" },
+        "payload": { "$ref": "#/definitions/MediaPayload" }
+      },
+      "required": ["type", "payload"]
+    },
+
+    "TypedMessageBot": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "bot.start" },
+            "payload": { "$ref": "#/definitions/BotStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "bot.started" },
+            "payload": { "$ref": "#/definitions/BotStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "bot.event" },
+            "payload": { "$ref": "#/definitions/BotEventPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "bot.feature" },
+            "payload": { "$ref": "#/definitions/BotFeaturePayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "bot.end" },
+            "payload": { "$ref": "#/definitions/BotEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "bot.ended" },
+            "payload": { "$ref": "#/definitions/BotEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageByobot": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "byobot.start" },
+            "payload": { "$ref": "#/definitions/ByobotStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "byobot.started" },
+            "payload": { "$ref": "#/definitions/ByobotStartedPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "byobot.end" },
+            "payload": { "$ref": "#/definitions/ByobotEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "byobot.ended" },
+            "payload": { "$ref": "#/definitions/ByobotEndedPayload" }
+          },
+          "required": ["type", "payload"]
+        }
+      ]
+    },
+
+    "TypedMessageAgentAssist": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "agentassist.start" },
+            "payload": { "$ref": "#/definitions/AgentAssistStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.started" },
+            "payload": { "$ref": "#/definitions/AgentAssistStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.lifecycle" },
+            "payload": { "$ref": "#/definitions/AgentAssistLifecyclePayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.feature" },
+            "payload": { "$ref": "#/definitions/AgentAssistFeaturePayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.feedback" },
+            "payload": { "$ref": "#/definitions/AgentAssistFeedbackPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.event" },
+            "payload": { "$ref": "#/definitions/AgentAssistEventPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.end" },
+            "payload": { "$ref": "#/definitions/AgentAssistEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "agentassist.ended" },
+            "payload": { "$ref": "#/definitions/AgentAssistEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageRecording": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "recording.start" },
+            "payload": { "$ref": "#/definitions/RecordingStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "recording.started" },
+            "payload": { "$ref": "#/definitions/RecordingStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "recording.end" },
+            "payload": { "$ref": "#/definitions/RecordingEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "recording.ended" },
+            "payload": { "$ref": "#/definitions/RecordingEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageTts": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "tts.start" },
+            "payload": { "$ref": "#/definitions/TtsStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "tts.started" },
+            "payload": { "$ref": "#/definitions/TtsStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "tts.complete" },
+            "payload": { "$ref": "#/definitions/TtsCompletePayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "tts.end" },
+            "payload": { "$ref": "#/definitions/TtsEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "tts.ended" },
+            "payload": { "$ref": "#/definitions/TtsEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageAsr": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "asr.start" },
+            "payload": { "$ref": "#/definitions/AsrStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "asr.started" },
+            "payload": { "$ref": "#/definitions/AsrStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "asr.speechdetected" },
+            "payload": { "$ref": "#/definitions/AsrSpeechDetectedPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "asr.result" },
+            "payload": { "$ref": "#/definitions/AsrResultPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "asr.end" },
+            "payload": { "$ref": "#/definitions/AsrEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "asr.ended" },
+            "payload": { "$ref": "#/definitions/AsrEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageTranscription": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "transcription.start" },
+            "payload": { "$ref": "#/definitions/TranscriptionStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "transcription.started" },
+            "payload": { "$ref": "#/definitions/TranscriptionStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "transcription.result" },
+            "payload": { "$ref": "#/definitions/TranscriptionResultPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "transcription.end" },
+            "payload": { "$ref": "#/definitions/TranscriptionEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "transcription.ended" },
+            "payload": { "$ref": "#/definitions/TranscriptionEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "TypedMessageTranslator": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "translator.start" },
+            "payload": { "$ref": "#/definitions/TranslatorStartPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "translator.started" },
+            "payload": { "$ref": "#/definitions/TranslatorStartedPayload" }
+          },
+          "required": ["type"]
+        },
+        {
+          "properties": {
+            "type": { "const": "translator.end" },
+            "payload": { "$ref": "#/definitions/TranslatorEndPayload" }
+          },
+          "required": ["type", "payload"]
+        },
+        {
+          "properties": {
+            "type": { "const": "translator.ended" },
+            "payload": { "$ref": "#/definitions/TranslatorEndedPayload" }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+
+    "SessionStartPayload": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["bot", "recording", "agentassist", "tts", "asr", "transcription", "translator"]
+          }
+        },
+        "accountId": { "type": "string" },
+        "engagementId": { "type": "string" },
+        "workflowSessionId": { "type": "string" },
+        "interactionId": { "type": "string" },
+        "mediaEndpoints": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SessionMediaEndpoint" }
+        },
+        "mediaTransports": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/MediaTransport" }
+        }
+      },
+      "required": [
+        "services",
+        "accountId",
+        "engagementId",
+        "workflowSessionId",
+        "interactionId",
+        "mediaEndpoints",
+        "mediaTransports"
+      ],
+      "additionalProperties": false
+    },
+
+    "SessionMediaEndpoint": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "tag": { "type": "string" },
+        "flows": { "$ref": "#/definitions/EndpointFlows" },
+        "bidIndex": { "type": "integer" }
+      },
+      "required": ["endpointId", "tag", "flows"],
+      "additionalProperties": false
+    },
+
+    "EndpointFlows": {
+      "type": "object",
+      "properties": {
+        "audio": { "$ref": "#/definitions/AudioFlows" },
+        "video": { "$ref": "#/definitions/VideoFlows" }
+      },
+      "additionalProperties": false
+    },
+
+    "AudioFlows": {
+      "type": "object",
+      "properties": {
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["auto", "none"] }
+            },
+            "bid": { "type": "integer" }
+          },
+          "required": ["target", "bid"],
+          "additionalProperties": false
+        },
+        "egress": {
+          "type": "object",
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["tx", "rx", "none"] }
+            },
+            "bid": { "type": "integer" }
+          },
+          "required": ["sources", "bid"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "VideoFlows": {
+      "type": "object",
+      "properties": {
+        "ingress": { "type": "object" },
+        "egress": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+
+    "MediaTransport": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["avaya-wss", "avaya-wss-rtp"] },
+        "mediaCodecs": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": [
+              { "type": "string", "enum": ["audio", "video"] },
+              { "type": "string" },
+              { "type": "integer" },
+              { "type": "integer" }
+            ]
+          }
+        },
+        "transportEncodings": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["base64", "binary", "RTP/SAVP"] }
+        }
+      },
+      "required": ["type", "mediaCodecs"],
+      "additionalProperties": false
+    },
+
+    "SessionStartedPayload": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["bot", "recording", "agentassist", "tts", "asr", "transcription", "translator"]
+          }
+        },
+        "mediaTransport": { "$ref": "#/definitions/MediaTransportSelected" }
+      },
+      "required": ["services", "mediaTransport"],
+      "additionalProperties": false
+    },
+
+    "MediaTransportSelected": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["avaya-wss", "avaya-wss-rtp"] },
+        "preferredPTimeMs": { "type": "integer", "minimum": 20 },
+        "dtx": { "type": "string", "enum": ["auto", "disabled"] },
+        "mediaCodecs": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": [
+              { "type": "string", "enum": ["audio", "video"] },
+              { "type": "string" },
+              { "type": "integer" },
+              { "type": "integer" }
+            ]
+          }
+        },
+        "transportEncoding": {
+          "type": "string",
+          "enum": ["base64", "binary", "RTP/SAVP"]
+        }
+      },
+      "required": ["type", "mediaCodecs", "transportEncoding"],
+      "additionalProperties": false
+    },
+
+    "SessionUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["bot", "recording", "agentassist", "tts", "asr", "transcription", "translator"]
+          }
+        },
+        "accountId": { "type": "string" },
+        "engagementId": { "type": "string" },
+        "workflowSessionId": { "type": "string" },
+        "interactionId": { "type": "string" },
+        "mediaEndpoints": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SessionMediaEndpoint" }
+        }
+      },
+      "required": [
+        "services",
+        "accountId",
+        "engagementId",
+        "workflowSessionId",
+        "interactionId",
+        "mediaEndpoints"
+      ],
+      "additionalProperties": false
+    },
+
+    "SessionErrorPayload": {
+      "type": "object",
+      "properties": {
+        "messageType": { "type": "string" },
+        "messageSequenceNum": { "type": "integer" },
+        "status": { "$ref": "#/definitions/Status" }
+      },
+      "required": ["messageType", "messageSequenceNum", "status"],
+      "additionalProperties": false
+    },
+
+    "SessionPauseResumePayload": {
+      "type": "object",
+      "properties": {
+        "mediaEndpoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "endpointId": { "type": "string" },
+              "audio": {
+                "type": "object",
+                "properties": {
+                  "flows": {
+                    "type": "array",
+                    "items": { "type": "string", "enum": ["ingress", "egress"] }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": ["endpointId"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "SessionEventPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "content": {
+          "type": "object",
+          "description": "Opaque application-defined content."
+        }
+      },
+      "required": ["content"],
+      "additionalProperties": false
+    },
+
+    "SessionDtmfPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "digits": { "type": "string" }
+      },
+      "required": ["endpointId", "digits"],
+      "additionalProperties": false
+    },
+
+    "SessionBindPayload": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["bot", "recording", "agentassist", "tts", "asr", "transcription", "translator"]
+          }
+        }
+      },
+      "required": ["services"],
+      "additionalProperties": false
+    },
+
+    "SessionBoundPayload": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["bot", "recording", "agentassist", "tts", "asr", "transcription", "translator"]
+          }
+        }
+      },
+      "required": ["services"],
+      "additionalProperties": false
+    },
+
+    "SessionEndPayload": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/definitions/Status" }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+
+    "SessionNegotiatePayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "sdpOffer": { "type": "string" },
+        "sdpTemplate": { "type": "string" }
+      },
+      "required": ["endpointId", "sdpOffer"],
+      "additionalProperties": false
+    },
+
+    "SessionNegotiatingPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "sdpOffer": { "type": "string" }
+      },
+      "required": ["endpointId", "sdpOffer"],
+      "additionalProperties": false
+    },
+
+    "SessionNegotiatedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "sdpAnswer": { "type": "string" }
+      },
+      "required": ["endpointId", "sdpAnswer"],
+      "additionalProperties": false
+    },
+
+    "MediaPayload": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "media" },
+        "bid": { "type": "integer" },
+        "src": { "type": "string", "enum": ["rx", "tx"] },
+        "asn": { "type": "integer" },
+        "ts": { "type": ["integer", "string"] },
+        "lastf": { "type": "integer" },
+        "audio": { "type": "string" }
+      },
+      "required": ["type", "bid", "asn", "ts", "audio"],
+      "additionalProperties": false
+    },
+
+    "BotStartPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "botId": { "type": "string" },
+        "botCredentials": { "type": "string" },
+        "language": { "type": "string" },
+        "domain": { "type": "string" },
+        "to": { "type": "string" },
+        "from": { "type": "string" },
+        "ucid": { "type": "string" },
+        "direction": { "type": "string", "enum": ["INBOUND", "OUTBOUND"] },
+        "context": { "type": "object" }
+      },
+      "required": [
+        "endpointId",
+        "botId",
+        "botCredentials",
+        "language",
+        "domain",
+        "to",
+        "from",
+        "ucid",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+
+    "BotStartedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "BotEventPayload": {
+      "type": "object",
+      "properties": {
+        "content": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+
+    "BotFeaturePayload": {
+      "type": "object",
+      "properties": {
+        "ftype": {
+          "type": "string",
+          "enum": ["TRANSCRIPT", "LIVE_AGENT_HANDOFF", "TRANSFER_CALL"]
+        },
+        "transcript": { "$ref": "#/definitions/BotTranscript" },
+        "liveAgentHandoff": { "$ref": "#/definitions/BotLiveAgentHandoff" },
+        "transferCall": { "$ref": "#/definitions/BotTransferCall" }
+      },
+      "required": ["ftype"],
+      "additionalProperties": false
+    },
+
+    "BotTranscript": {
+      "type": "object",
+      "properties": {
+        "turnId": { "type": "string" },
+        "speaker": { "type": "string", "enum": ["CUSTOMER", "BOT"] },
+        "isFinal": { "type": "boolean" },
+        "text": { "type": "string" },
+        "digits": { "type": "string" },
+        "confidence": { "type": "number" },
+        "sentiment": { "$ref": "#/definitions/Sentiment" },
+        "language": { "type": "string" },
+        "startTsMs": { "type": "integer" },
+        "endTsMs": { "type": "integer" },
+        "context": { "type": "object" }
+      },
+      "required": ["turnId", "speaker", "isFinal", "text", "confidence", "language", "startTsMs"],
+      "additionalProperties": false
+    },
+
+    "BotLiveAgentHandoff": {
+      "type": "object",
+      "properties": {
+        "queueId": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "context": { "type": "object" }
+      },
+      "required": ["queueId"],
+      "additionalProperties": false
+    },
+
+    "BotTransferCall": {
+      "type": "object",
+      "properties": {
+        "uri": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["uri"],
+      "additionalProperties": false
+    },
+
+    "BotEndPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "status"],
+      "additionalProperties": false
+    },
+
+    "BotEndedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistStartPayload": {
+      "type": "object",
+      "properties": {
+        "domain": { "type": "string" },
+        "to": { "type": "string" },
+        "from": { "type": "string" },
+        "ucid": { "type": "string" },
+        "direction": { "type": "string", "enum": ["INBOUND", "OUTBOUND"] },
+        "conversationId": { "type": "string" },
+        "conversationStartMs": { "type": "integer" },
+        "mediaEndpoints": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AgentAssistMediaEndpoint" }
+        },
+        "context": { "type": "object" }
+      },
+      "required": [
+        "domain",
+        "to",
+        "from",
+        "ucid",
+        "direction",
+        "conversationId",
+        "conversationStartMs",
+        "mediaEndpoints"
+      ],
+      "additionalProperties": false
+    },
+
+    "AgentAssistMediaEndpoint": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "role": {
+          "type": "string",
+          "enum": ["CUSTOMER", "AGENT", "BOT", "SUPERVISOR", "CUSTOMER+AGENT"]
+        },
+        "language": { "type": "string" }
+      },
+      "required": ["endpointId", "role", "language"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistStartedPayload": {
+      "type": "object",
+      "properties": {
+        "vendor": { "type": "string" },
+        "vendorConversationId": { "type": "string" }
+      },
+      "required": ["vendor", "vendorConversationId"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistLifecyclePayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "role": {
+          "type": "string",
+          "enum": ["CUSTOMER", "AGENT", "BOT", "SUPERVISOR"]
+        },
+        "state": {
+          "type": "string",
+          "enum": ["JOINED", "UNJOINED", "MUTED", "UNMUTED"]
+        },
+        "eventStartMs": { "type": "integer" }
+      },
+      "required": ["endpointId", "role", "state", "eventStartMs"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistFeaturePayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "ftype": {
+          "type": "string",
+          "enum": [
+            "TRANSCRIPT",
+            "KNOWLEDGE_RESULTS",
+            "KNOWLEDGE_ANSWER",
+            "SMART_REPLY",
+            "SUMMARIZATION"
+          ]
+        },
+        "transcript": { "$ref": "#/definitions/AgentAssistTranscript" },
+        "knowledgeResults": { "$ref": "#/definitions/AgentAssistKnowledgeResults" },
+        "knowledgeAnswer": { "$ref": "#/definitions/AgentAssistKnowledgeAnswer" },
+        "smartReply": { "$ref": "#/definitions/AgentAssistSmartReply" },
+        "summarization": { "$ref": "#/definitions/AgentAssistSummarization" }
+      },
+      "required": ["endpointId", "ftype"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistTranscript": {
+      "type": "object",
+      "properties": {
+        "turnId": { "type": "string" },
+        "speaker": {
+          "type": "string",
+          "enum": ["CUSTOMER", "AGENT", "SUPERVISOR", "BOT"]
+        },
+        "vendorParticipantId": { "type": "string" },
+        "isFinal": { "type": "boolean" },
+        "text": { "type": "string" },
+        "digits": { "type": "string" },
+        "confidence": { "type": "number" },
+        "sentiment": { "$ref": "#/definitions/Sentiment" },
+        "language": { "type": "string" },
+        "startTsMs": { "type": "integer" },
+        "endTsMs": { "type": "integer" }
+      },
+      "required": [
+        "turnId",
+        "speaker",
+        "vendorParticipantId",
+        "isFinal",
+        "text",
+        "confidence",
+        "language",
+        "startTsMs"
+      ],
+      "additionalProperties": false
+    },
+
+    "Sentiment": {
+      "type": "object",
+      "properties": {
+        "score": { "type": "number" },
+        "magnitude": { "type": "number" }
+      },
+      "required": ["score", "magnitude"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistKnowledgeResults": {
+      "type": "object",
+      "properties": {
+        "artifactId": { "type": "string" },
+        "correlationId": { "type": "string" },
+        "startTsMs": { "type": "integer" },
+        "anchor": { "$ref": "#/definitions/Anchor" },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Artifact" }
+        }
+      },
+      "required": ["artifactId", "correlationId", "startTsMs", "anchor", "artifacts"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistKnowledgeAnswer": {
+      "type": "object",
+      "properties": {
+        "artifactId": { "type": "string" },
+        "correlationId": { "type": "string" },
+        "startTsMs": { "type": "integer" },
+        "anchor": { "$ref": "#/definitions/Anchor" },
+        "answer": { "$ref": "#/definitions/Answer" },
+        "confidence": { "type": "number" }
+      },
+      "required": ["artifactId", "correlationId", "startTsMs", "anchor", "answer", "confidence"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistSmartReply": {
+      "type": "object",
+      "properties": {
+        "artifactId": { "type": "string" },
+        "correlationId": { "type": "string" },
+        "startTsMs": { "type": "integer" },
+        "anchor": { "$ref": "#/definitions/Anchor" },
+        "derivedFrom": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifactId": { "type": "string" },
+              "sourceEvent": { "type": "string" }
+            },
+            "required": ["artifactId", "sourceEvent"],
+            "additionalProperties": false
+          }
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "replyId": { "type": "string" },
+              "text": { "type": "string" },
+              "style": { "type": "string" }
+            },
+            "required": ["replyId", "text", "style"],
+            "additionalProperties": false
+          }
+        },
+        "confidence": { "type": "number" }
+      },
+      "required": ["artifactId", "correlationId", "startTsMs", "anchor", "replies", "confidence"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistSummarization": {
+      "type": "object",
+      "properties": {
+        "artifactId": { "type": "string" },
+        "startTsMs": { "type": "integer" },
+        "anchor": { "$ref": "#/definitions/Anchor" },
+        "summary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": ["APPEND", "DELETE", "REPLACE_ALL"]
+              },
+              "text": { "type": "string" }
+            },
+            "required": ["action", "text"],
+            "additionalProperties": false
+          }
+        },
+        "confidence": { "type": "number" }
+      },
+      "required": ["artifactId", "startTsMs", "anchor", "summary", "confidence"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistFeedbackPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "ftype": {
+          "type": "string",
+          "enum": ["SMART_REPLY_SELECTION", "SUMMARIZATION_EDIT"]
+        },
+        "smartReplySelection": {
+          "type": "object",
+          "properties": {
+            "turnId": { "type": "string" },
+            "correlationId": { "type": "string" },
+            "artifactId": { "type": "string" },
+            "replyId": { "type": "string" }
+          },
+          "required": ["turnId", "correlationId", "artifactId", "replyId"],
+          "additionalProperties": false
+        },
+        "summarizationEdit": {
+          "type": "object",
+          "properties": {
+            "text": { "type": "string" }
+          },
+          "required": ["text"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["endpointId", "ftype"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistEventPayload": {
+      "type": "object",
+      "properties": {
+        "content": { "type": "object" }
+      },
+      "required": ["content"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistEndPayload": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+
+    "AgentAssistEndedPayload": {
+      "type": "object",
+      "properties": {
+        "context": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+
+    "RecordingStartPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "participantId": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "domain": { "type": "string" },
+        "to": { "type": "string" },
+        "from": { "type": "string" },
+        "ucid": { "type": "string" },
+        "direction": { "type": "string", "enum": ["INBOUND", "OUTBOUND"] },
+        "context": { "type": "object" }
+      },
+      "required": [
+        "endpointId",
+        "participantId",
+        "conversationId",
+        "tenantId",
+        "domain",
+        "to",
+        "from",
+        "ucid",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+
+    "RecordingStartedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "RecordingEndPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "status"],
+      "additionalProperties": false
+    },
+
+    "RecordingEndedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "TtsStartPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "say": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "language": { "type": "string" },
+              "text": { "type": "string" },
+              "gender": { "type": "string" },
+              "voice": { "type": "string" }
+            },
+            "required": ["language", "text"],
+            "additionalProperties": false
+          }
+        },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "say"],
+      "additionalProperties": false
+    },
+
+    "TtsStartedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "mediaType": {
+          "type": "string",
+          "enum": ["BATCH", "STREAM"]
+        }
+      },
+      "required": ["endpointId", "mediaType"],
+      "additionalProperties": false
+    },
+
+    "TtsCompletePayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "mediaType": {
+          "type": "string",
+          "enum": ["BATCH", "STREAM"]
+        },
+        "bytesGenerated": { "type": "integer" },
+        "audio": { "type": "string" }
+      },
+      "required": ["endpointId", "mediaType", "bytesGenerated"],
+      "additionalProperties": false
+    },
+
+    "TtsEndPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "status"],
+      "additionalProperties": false
+    },
+
+    "TtsEndedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "AsrStartPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "language": { "type": "string" },
+        "singleUtterance": { "type": "boolean" },
+        "noInputTimer": { "type": "integer" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "language", "singleUtterance"],
+      "additionalProperties": false
+    },
+
+    "AsrStartedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "AsrSpeechDetectedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "AsrResultPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "text": { "type": "string" },
+        "confidence": { "type": "number" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "text", "confidence"],
+      "additionalProperties": false
+    },
+
+    "AsrEndPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "status"],
+      "additionalProperties": false
+    },
+
+    "AsrEndedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "TranscriptionStartPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "language": { "type": "string" },
+        "enableInterimResults": { "type": "boolean" },
+        "interimThrottle": { "type": "integer" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "language"],
+      "additionalProperties": false
+    },
+
+    "TranscriptionStartedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "TranscriptionResultPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "isFinal": { "type": "boolean" },
+        "text": { "type": "string" },
+        "digits": { "type": "string" },
+        "confidence": { "type": "number" },
+        "sentiment": { "$ref": "#/definitions/Sentiment" },
+        "startTsMs": { "type": "number" },
+        "endTsMs": { "type": "number" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "isFinal", "text", "confidence", "startTsMs"],
+      "additionalProperties": false
+    },
+
+    "TranscriptionEndPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId", "status"],
+      "additionalProperties": false
+    },
+
+    "TranscriptionEndedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "context": { "type": "object" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "TranslatorStartPayload": {
+      "type": "object",
+      "properties": {
+        "mediaEndpoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "endpointId": { "type": "string" },
+              "tag": { "type": "string" },
+              "language": { "type": "string" }
+            },
+            "required": ["endpointId", "tag", "language"],
+            "additionalProperties": false
+          }
+        },
+        "context": { "type": "object" }
+      },
+      "required": ["mediaEndpoints"],
+      "additionalProperties": false
+    },
+
+    "TranslatorStartedPayload": {
+      "type": "object",
+      "description": "translator.started has no payload."
+    },
+
+    "TranslatorEndPayload": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/definitions/Status" },
+        "context": { "type": "object" }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+
+    "TranslatorEndedPayload": {
+      "type": "object",
+      "properties": {
+        "context": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+
+    "Anchor": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["turn", "window"] },
+        "turnId": { "type": "string" },
+        "startTurnId": { "type": "string" },
+        "endTurnId": { "type": "string" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+
+    "Artifact": {
+      "type": "object",
+      "properties": {
+        "sourceId": { "type": "string" },
+        "title": { "type": "string" },
+        "uri": { "type": "string" },
+        "snippets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Snippet" }
+        },
+        "score": { "type": "number" }
+      },
+      "required": ["sourceId", "title", "uri", "snippets", "score"],
+      "additionalProperties": false
+    },
+
+    "Snippet": {
+      "type": "object",
+      "properties": {
+        "snippetId": { "type": "string" },
+        "text": { "type": "string" },
+        "score": { "type": "number" }
+      },
+      "required": ["snippetId", "text", "score"],
+      "additionalProperties": false
+    },
+
+    "Answer": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "citations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source_id": { "type": "string" },
+              "snippet_id": { "type": "string" }
+            },
+            "required": ["source_id", "snippet_id"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["text", "citations"],
+      "additionalProperties": false
+    },
+
+    "ByobotStartPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "botId": { "type": "string" }
+      },
+      "required": ["endpointId", "botId"],
+      "additionalProperties": false
+    },
+
+    "ByobotStartedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" },
+        "botId": { "type": "string" },
+        "scenario": { "type": "string" }
+      },
+      "required": ["endpointId", "botId"],
+      "additionalProperties": false
+    },
+
+    "ByobotEndPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "ByobotEndedPayload": {
+      "type": "object",
+      "properties": {
+        "endpointId": { "type": "string" }
+      },
+      "required": ["endpointId"],
+      "additionalProperties": false
+    },
+
+    "Status": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "integer" },
+        "reason": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["code", "reason"],
+      "additionalProperties": false
+    }
+  }
+}
+         
